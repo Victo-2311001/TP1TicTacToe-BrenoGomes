@@ -1,3 +1,12 @@
+///Autheur: Breno Gomes da Silva
+///Travail pratique - TicTacToe immersif
+///Utilisation des notes de cours: https://envimmersif-cegepvicto.github.io/
+///Ainsi que projet demonstratif: https://github.com/EnvImmersif-CegepVicto/AR_Demos.git
+///Pour la réalisation du projet (Autheur des références: Frédérick Taleb
+///Aide de l'intelligence artificielle pour certains concepts du projet 
+///(plus de détails dans le ReadMe)
+
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -5,6 +14,7 @@ public class GameController : MonoBehaviour
 {
     public static GameController Instance;
 
+    [Header("Référence")]
     [SerializeField]
     private TextMeshProUGUI instructionsText;
     [SerializeField]
@@ -12,10 +22,17 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI victoireText;
 
+    [SerializeField]
+    private GameObject btnReplacer;
+    [SerializeField]
+    private GameObject btnRecommencer;
+
+    [Header("Paramètres")]
     public int tour = 0;
     public int nbCoupsMax = 9;
-
     private int[,] grille = new int[3, 3];
+    private bool grillePlacee = false;
+    private bool toucheMur = false;
     private bool partieTerminee = false;
 
     private void Awake()
@@ -31,8 +48,13 @@ public class GameController : MonoBehaviour
         }
 
         InitialiserGrille();
+        MettreAJourAffichage();
+        
+        btnRecommencer.SetActive(false);
+        btnReplacer.SetActive(false);
     }
 
+    //Initaliser les dimentions de la grille pour savoir les combinaisons gagnantes 
     private void InitialiserGrille()
     {
         for (int i = 0; i < 3; i++)
@@ -43,7 +65,8 @@ public class GameController : MonoBehaviour
             }
         }
     }
-
+    
+    //Vérifier tour
     public bool EstTourX()
     {
         return tour % 2 == 0;
@@ -51,17 +74,32 @@ public class GameController : MonoBehaviour
 
     public void CoupJoue(int numeroCarre)
     {
+        if (!grillePlacee)
+        {
+            return;
+        }        
+
+        //Convertir ligne case en numéro de la grille (3x3)
         int ligne = (numeroCarre - 1) / 3;
         int colonne = (numeroCarre - 1) % 3;
 
+        //Savoir si partie est terminée ou case est occupée
         if (partieTerminee || grille[ligne, colonne] != 0)
         {
             return;
         }
 
+        //Placer les chiffrens selon le tour
+        //(c'est avec ces chiffres qu'il est possible valider la victoire)
         grille[ligne, colonne] = EstTourX() ? 1 : 2;
 
         tour++;
+
+        //Activer le boutton recommecer
+        if (tour >= 1)
+        {
+            btnRecommencer.SetActive(true);
+        }
 
         if (VerifierVictoire())
         {
@@ -81,6 +119,7 @@ public class GameController : MonoBehaviour
 
     private bool VerifierVictoire()
     {
+        //Inversion car tour a changé
         int joueur = EstTourX() ? 2 : 1;
 
         //Vérifier les lignes
@@ -116,7 +155,7 @@ public class GameController : MonoBehaviour
 
         return false;
     }
-    //Code créé avec l'aide de l'intelligence artificielle
+    //Code créé avec l'aide de l'intelligence artificielle => Rêquete: montre moi la logique d'un TicTacToe pour que je puisse incrémenter dans mon jeu
     public bool JeuFini()
     {
         return partieTerminee;
@@ -144,8 +183,47 @@ public class GameController : MonoBehaviour
         tourText.text = "Terminé";
     }
 
+    public void GrillePlacee()
+    {
+        if (grillePlacee)
+        {
+            return;
+        }
+
+        grillePlacee = true;
+        toucheMur = false;
+        btnReplacer.SetActive(true);
+        MettreAJourAffichage();
+    }
+
+    public void GrilleRetiree()
+    {
+        grillePlacee = false;
+        btnReplacer.SetActive(false);
+        btnRecommencer.SetActive(false);
+        MettreAJourAffichage();
+    }
+
+    public void GrillePlaceeMauvaisePlace()
+    {
+        toucheMur = true;
+        MettreAJourAffichage();
+    }
+
     private void MettreAJourAffichage()
     {
+        if (!grillePlacee)
+        {
+            instructionsText.text = "Placez la grille";
+            if (toucheMur)
+            {
+                instructionsText.text = "Placez la grille sur une surface horizontale";
+            }
+            tourText.text = "";
+            victoireText.text = "";
+            return;
+        }
+
         instructionsText.text = "Placez la pièce sur une case";
         victoireText.text = "";
 
@@ -159,7 +237,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    //Savoir si la case est libre
+    //Savoir si la case clické est libre
     public bool CaseLibre(int ligne, int colonne)
     {
         return grille[ligne, colonne] == 0 && !partieTerminee;
@@ -171,4 +249,6 @@ public class GameController : MonoBehaviour
         int colonne = (numeroCarre - 1) % 3;
         return CaseLibre(ligne, colonne);
     }
+
+   
 }
