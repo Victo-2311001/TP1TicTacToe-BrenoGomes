@@ -6,13 +6,16 @@
 ///Aide de l'intelligence artificielle pour certains concepts du projet 
 ///(plus de détails dans le ReadMe)
 
+using System.Collections;
 using UnityEngine;
 
 public class CarreCollision : MonoBehaviour
 {
     [Header("Référence")]
     [SerializeField]
-    private int numeroCarre; 
+    private int numeroCarre;
+    public int NumeroCarre => numeroCarre;
+
     [SerializeField]
     private GameObject prefabX;
     [SerializeField]
@@ -53,6 +56,38 @@ public class CarreCollision : MonoBehaviour
         GameController.Instance.CoupJoue(numeroCarre);
 
     }
+
+    /// <summary>
+    /// S'occupe de l'animation de la ligne gagnante
+    /// </summary>
+    public void AnimationVictoire()
+    {
+        Renderer rend = GetComponent<Renderer>();
+        if (rend != null)
+        {
+            rend.material.color = Color.yellow;
+            rend.material.EnableKeyword("_EMISSION");
+            rend.material.SetColor("_EmissionColor", Color.yellow * 2f);
+        }
+    }
+
+    /// <summary>
+    /// Réinitialiser l'apparence du carré
+    /// </summary>
+    public void ReinitialiserApparence()
+    {
+        Renderer rend = GetComponent<Renderer>();
+        if (rend != null)
+        {
+            rend.material.color = Color.gray;
+            rend.material.DisableKeyword("_EMISSION");
+            rend.material.SetColor("_EmissionColor", Color.black);
+        }
+    }
+    ///100% généré avec l'IA, je voulais juste une petite animaton fun 
+    ///à place d'une fait directment dans Unity
+
+
 
     /// <summary>
     ///Vider la grille

@@ -162,6 +162,7 @@ public class Placement : MonoBehaviour
         foreach (var carre in carres)
         {
             carre.ViderCase();
+            carre.ReinitialiserApparence();
         }
 
         GameController.Instance.Recommencer();

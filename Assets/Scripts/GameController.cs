@@ -6,7 +6,6 @@
 ///Aide de l'intelligence artificielle pour certains concepts du projet 
 ///(plus de détails dans le ReadMe)
 
-using System;
 using TMPro;
 using UnityEngine;
 
@@ -31,6 +30,7 @@ public class GameController : MonoBehaviour
     public int tour = 0;
     public int nbCoupsMax = 9;
     private int[,] grille = new int[3, 3];
+    private int[] casesGagnantes = new int[3];
     private bool grillePlacee = false;
     private bool toucheMur = false;
     private bool partieTerminee = false;
@@ -127,6 +127,9 @@ public class GameController : MonoBehaviour
         {
             if (grille[i, 0] == joueur && grille[i, 1] == joueur && grille[i, 2] == joueur)
             {
+                casesGagnantes[0] = i * 3 + 1;
+                casesGagnantes[1] = i * 3 + 2;
+                casesGagnantes[2] = i * 3 + 3;
                 return true;
             }
 
@@ -137,6 +140,9 @@ public class GameController : MonoBehaviour
         {
             if (grille[0, j] == joueur && grille[1, j] == joueur && grille[2, j] == joueur)
             {
+                casesGagnantes[0] = j + 1;
+                casesGagnantes[1] = j + 4;
+                casesGagnantes[2] = j + 7;
                 return true;
             }
         }
@@ -144,12 +150,18 @@ public class GameController : MonoBehaviour
         //Vérifier diagonale principale (\)
         if (grille[0, 0] == joueur && grille[1, 1] == joueur && grille[2, 2] == joueur)
         {
+            casesGagnantes[0] = 1;
+            casesGagnantes[1] = 5;
+            casesGagnantes[2] = 9;
             return true;
         }
 
         //Vérifier diagonale secondaire (/)
         if (grille[0, 2] == joueur && grille[1, 1] == joueur && grille[2, 0] == joueur)
         {
+            casesGagnantes[0] = 3;
+            casesGagnantes[1] = 5;
+            casesGagnantes[2] = 7;
             return true;
         }
 
@@ -174,6 +186,19 @@ public class GameController : MonoBehaviour
         victoireText.text = gagnant + " a gagné!";
         instructionsText.text = "Recommencez ou quittez";
         tourText.text = "Terminé";
+
+        CarreCollision[] carres = FindObjectsByType<CarreCollision>(FindObjectsSortMode.None);
+
+        foreach (var carre in carres)
+        {
+            for (int i = 0; i < casesGagnantes.Length; i++)
+            {
+                if (carre.NumeroCarre == casesGagnantes[i])
+                {
+                    carre.AnimationVictoire();
+                }
+            }
+        }
     }
 
     private void AfficherEgalite()
@@ -214,7 +239,7 @@ public class GameController : MonoBehaviour
     {
         if (!grillePlacee)
         {
-            instructionsText.text = "Placez la grille";
+            instructionsText.text = "Scannez surface et placez la grille";
             if (toucheMur)
             {
                 instructionsText.text = "Placez la grille sur une surface horizontale";
